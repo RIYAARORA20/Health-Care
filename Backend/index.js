@@ -6,7 +6,8 @@ import dotenv from 'dotenv';
 import authRoute from "./Routes/auth.js";
 import userRoute from "./Routes/user.js";
 import doctorRoute from "./Routes/doctor.js";
-import reviewRoute from "./Routes/review.js"
+import reviewRoute from "./Routes/review.js";
+import bookingRoute from "./Routes/booking.js";
 
 dotenv.config()
 
@@ -39,10 +40,11 @@ const connectDB = async()=>{
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use('/api/v1/auth', authRoute);//domain/api/v1/auth/register
-app.use('/api/v1/users', userRoute);
-app.use('/api/v1/doctors', doctorRoute);
-app.use('/api/v1/reviews', reviewRoute);
+app.use('/api/auth', authRoute);//domain/api/v1/auth/register
+app.use('/api/users', userRoute);
+app.use('/api/doctors', doctorRoute);
+app.use('/api/reviews', reviewRoute);
+app.use('/api/bookings', bookingRoute);
 
 app.listen(port, ()=>{
     connectDB();
