@@ -1,9 +1,9 @@
 import {Link, useNavigate} from 'react-router-dom';
-import React,{useState, useContext} from 'react';
-import { BASE_URL } from "../config";
-import { authContext } from '../context/AuthContext.jsx'
+import React,{useState,useContext} from 'react';
+import { BASE_URL } from "../config.js";
+import { authContext } from '../context/AuthContext.jsx';
+import {toast} from "react-toastify";
 import HashLoader from 'react-spinners/HashLoader.js';
-
 const Login = () => {
   const [formData,setFormData] = useState({
     email:"",
@@ -13,52 +13,46 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const {dispatch} = useContext(authContext)
-
   const handleInputChange = e => {
     setFormData({...formData,[e.target.name]:e.target.value});
   };
+  
 
-  const submitHandler = async event =>{
-    
+  const submitHandler = async event => {
     event.preventDefault();
-    setLoading(true)
+    setLoading(true);
+    try{
+      const res = await fetch(`${BASE_URL}/auth/login`,{
+        method:'post',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
 
-    try {
-        const res = await fetch(`${BASE_URL}/auth/login`,{
-            method:'post',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringigy(formData)
-        });
+    const result= await res.json()
 
-        const result= await res.json()
-
-        if(!res.ok){
-            throw new Error(result.message)
-        }
-
-        dispatch({
-            type: 'LOGIN_SUCCESS',
-            payload: {
-                user: result.data,
-                token: result.token,
-                role: result.role,
-            },
-        });
-
-        console.log()
-
-        setLoading(false);
-        toast.success(result.message);
-        navigate('/home');
-
-    } catch (err) {
-       toast.error(err.message)
-        setLoading(false)
+    if(!res.ok){
+        throw new Error(result.message)
     }
-  };
+    dispatch({
+      type: 'LOGIN_SUCCESS',
+      payload: {
+          user: result.data,
+          token: result.token,
+          role: result.role,
+      },
+    });
 
+    setLoading(false)
+    toast.success(result.message)
+    navigate('/home');
+    }
+  catch(err){
+    toast.error(err.message);
+    setLoading(false);
+  };
+}
   return (
     <section className='px-5 lg:px-0'>
     <div className='w-full max-w-[570px] mx-auto rounded-lg shadow-md md:p-10'>

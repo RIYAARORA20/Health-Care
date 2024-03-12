@@ -11,3 +11,4 @@ const FaqList = () => {
 }
 
 export default FaqList
+

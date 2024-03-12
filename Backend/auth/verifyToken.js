@@ -8,7 +8,7 @@ export const authenticate = async(req, rws, next)=>{
 
     //check token is exists
     if(!authToken || !authToken.startsWith('Bearer')){
-        return resizeBy.status(401).json({success: false, messgae:'No token, authorization denied'})
+        return res.status(401).json({success: false, message:'No token, authorization denied'})
     }
 
     try{
@@ -17,18 +17,18 @@ export const authenticate = async(req, rws, next)=>{
         //verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
 
-        req.userId=decoded.id 
-        req.role = decoded.role 
+        req.userId=decoded.id;
+        req.role = decoded.role; 
 
         next();//must be call the next function
     }
     catch(err){
 
         if(err.name==='TokenExpiredError'){
-            return resizeBy.status(401).json({message:'Token is expired'})
+            return res.status(401).json({message:'Token is expired'})
         }
 
-        return resizeBy.status(401).json({success: false, message: "Invalid token"})
+        return res.status(401).json({success: false, message: "Invalid token"})
     }
 };
 

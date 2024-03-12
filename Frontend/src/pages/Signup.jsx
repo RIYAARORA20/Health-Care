@@ -1,90 +1,80 @@
-import { useState } from 'react';
-
-import signupImg from "../assets/images/signup.gif"
-
-import { Link } from "reat-router-dom";
-import uploadImageToCloudinary from '../utils/uploadCloudinary';
-import { BASE_URL } from "../config";
+import { useState ,useContext} from 'react';
+import {Link,useNavigate} from 'react-router-dom'; 
+import {BASE_URL} from "../config.js";
+import { authContext} from '../context/AuthContext.jsx';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import HashLoader from 'react-spinners/HashLoader';
-
+import HashLoader from 'react-spinners/HashLoader.js'
+import uploadImageToCloudinary from '../utils/uploadCloudinary.js';
 const Signup = () => {
-  const [selectedFile, setSelectedFile]=useState(null);
-  const [previewURL, setPreviewURL]=useState("");
-  const [loading, setLoading]= useState(false);
-
-  const [formData, setFromData]=useState({
-    name: "",
-    email: "",
-    password: "",
-    photo: selectedFile,
-    gender: "",
-    role: "patient",
+  
+  const [selectedFile,setSelectedFile] = useState(null);
+  const [previewURL,setPreviewURL] = useState("");
+  const [loading,setLoading] = useState(false);
+  const [formData,setFormData] = useState({
+    name:"",
+    email:"",
+    password:"",
+    photo:"selectedFile",
+    gender:"",
+    role:"patient"
   });
 
   const navigate = useNavigate();
 
   const handleInputChange = e => {
-    setFromData({ ...formData, [e.target.name]: e.target.value});
+    setFormData({...formData,[e.target.name]:e.target.value});
   };
-
-  const handleFileInputChange = async event =>{
+  const handleFileInputChange = async (event) => {
     const file = event.target.files[0];
-
+  if (file) {
     const data = await uploadImageToCloudinary(file);
-
     setPreviewURL(data.url);
     setSelectedFile(data.url);
-    setFromData({})
-    //later we will use cloudinary to upload images
+    setFormData({ ...formData, photo: data.url });
+  } else {
+    // If the user cleared the file input, reset selectedFile, previewURL, and photo in formData
+    setPreviewURL("");
+    setSelectedFile(null);
+    setFormData({ ...formData, photo: null });
+  }
   };
+  const {dispatch} = useContext(authContext)
 
-  const submitHandler = async event =>{
-    
+  const submitHandler = async event => {
     event.preventDefault();
-    setLoading(true)
+    setLoading(true);
+    try{
+      const res = await fetch(`${BASE_URL}/auth/register`,{
+        method:'post',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
 
-    try {
-        const res = await fetch(`${BASE_URL}/auth/register`,{
-            method:'post',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringigy(formData)
-        })
+    const { message }= await res.json()
 
-        const { message }= await res.json()
-
-        if(!res.ok){
-            throw new Error(message)
-        }
-
-        setLoading(false)
-        toast.success(message)
-        navigate('/login')
-
-    } catch (err) {
-       toast.error(err.message)
-        setLoading(false)
+    if(!res.ok){
+        throw new Error(message);
     }
+    dispatch({type: 'LOGOUT'});
+    setLoading(false);
+    toast.success(message);
+    navigate('/login');
+    }
+  catch(err){
+    toast.error(err.message);
+    setLoading(false);
   };
-
-  return(
-    <section className='px-5 xl:px-0'>
-    <div className='max-w-[1170px] mx-auto'>
-      <div className='grid grid-cols-1 lg:grid-cols-2'>
-        {/* =========img box========= */}
-        <div className='hidden lg:block bg-primaryColor
-        rounded-l-lg'>
-          <figure className='rounded-l-lg'>
-            <img src={signupImg} alt="" className='w-full rounded-l-lg'/>
-          </figure>
-        </div>
+}
+  return (
+    <section className='xl:px-4 xl:mt-[-5rem]'>
+    <div className='mx-auto'>
+      <div className='w-full max-w-[570px] mx-auto md:p-10'>
 
         {/* ===Signup form==== */}
-       <div className='rounded-l-lg lg:pl-16 py-10'>
-       <h3 className='text-headingColor text-[22px] leading-9 font-bold mb-10'>
+       <div className='rounded-l-lg lg:pl-16 py-5'>
+       <h3 className='text-headingColor text-[22px] leading-9 font-bold mb-5'>
         Create an <span className='text-primaryColor'>Account</span>
        </h3>
        <form onSubmit={submitHandler}>
@@ -139,16 +129,16 @@ const Signup = () => {
               <option value="">Select</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="others">Others</option>
 
             </select>
           </label>
           </div>
 
-          <div className='mb-4 flex items-center gap-3'>
-            { selectedFile &&<figure className='w-[60px] h-[60px] rounded-full border-2 border-solid border-primaryColor flex items-center justify-center'>
+          <div className='mb-5 flex items-center gap-3'>
+            {previewURL && (<figure className='w-[60px] h-[60px] rounded-full border-2 border-solid border-primaryColor flex items-center justify-center'>
               <img src={previewURL} className="w-full rounded-full" alt=""/>
-            </figure>}
+            </figure>) }
             <div className='relative w-[130px] h-[50px]'>
               <input
                 type="file"
@@ -167,7 +157,8 @@ const Signup = () => {
             </div>
           </div>
           <div className='mt-7'>
-          <button disabled={loading && true} type="submit" className='w-full bg-primaryColor text-white text-[18px] leading-[30px] rounded-lg px-4 py-3'>{loading ? (<HashLoader size={35} color="#ffffff"/>) :'Sign up'}</button>
+          <button 
+          disabled={loading && true} type="submit" className='w-full bg-primaryColor text-white text-[18px] leading-[30px] rounded-lg px-4 py-3'>{loading ? (<HashLoader size={35} color="#ffffff"/>) :'Sign up'}</button>
         </div>
         <p className='mt-5 text-textColor text-center'>Already have an account?
         <Link to="/login" className='text-primaryColor font-medium ml-1'>Login</Link>
@@ -181,4 +172,4 @@ const Signup = () => {
   )
 }
 
-export default Signup
+export default Signup;

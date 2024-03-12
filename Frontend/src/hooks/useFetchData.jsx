@@ -1,36 +1,34 @@
-import {useEffect, useState} from 'react'
-import { token } from '../config'
+import { useEffect,useState } from "react";
+import {token} from "../config";
 
 const useFetchData = (url) => {
-    const [data, setData] = useState([])
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
-
-    useEffect(()=>{
+    const [data,setData] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [error,setError] = useState(null);
+    useEffect(() => {
         const fetchData = async()=>{
-            setLoading(true)
-            try {
-                const res = await fetch(url,{
-                    headers:{Authorization: `Bearer ${token}`}
-                })
-                const result = await res.json()
-    
-                if(!res.ok){
-                    throw new Error(result.message + ':<')
-                }
-
-                setData(result.data)
-                setLoading(false)
-            } catch (error) {
-                setLoading(false)
-                setError(err.message)
+            setLoading(true);
+           try{
+            const res = await fetch(url,{
+                headers:{Authorization:`Bearer ${token}`}
+            });
+            const result = await res.json();
+            if(!res.ok){
+                throw new Error(result.message);
             }
-        }
-        fetchData()
+            setData(result.data);
+            setLoading(false);
+           }
+           catch(err){
+            console.error('Fetch Error:', err); // Log the error for debugging
+            setLoading(false);
+            setError(err.message);
+           }
+        };
+        fetchData();
     },[url])
-  return (
-    data, loading, error,
-  )
+    return {
+        data,loading,error
+    }
 }
-
-export default useFetchData
+export default useFetchData;

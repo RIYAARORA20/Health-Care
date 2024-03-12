@@ -26,7 +26,7 @@ export const deleteDoctor = async(req, res)=>{
 export const getSingleDoctor = async(req, res)=>{
     const id = req.params.id 
     try{
-        const doctor = await Doctor.findById(id).populate("reviews").select("-password");;
+        const doctor = await Doctor.findById(id).populate("reviews").select("-password");
 
         res.status(200).json({success: true, message: 'Doctor found', data: doctor });
     }catch(err){
@@ -37,16 +37,22 @@ export const getSingleDoctor = async(req, res)=>{
 export const getAllDoctor = async(req, res)=>{
      
     try{
-        const {query} = req.query
+        const {query} = req.query;
         let doctors;
 
-        if(query){
-            doctors = await Doctor.find({isApproved:'approved', $or:[{name:{$regex:query, $options:'i'}},
-            {specialization:{$regex:query, $options:'i'}},
-        ],
-        }).select("-password");
-        }else{
-            const doctors = await Doctor.find({isApproved: "approved"}).select("-password");
+        const baseQuery = {};
+    
+        if (query) {
+            const regexQuery = {
+                $or: [
+                    { name: { $regex: query, $options: 'i' } },
+                    { specialization: { $regex: query, $options: 'i' } },
+                ],
+            };
+    
+            doctors = await Doctor.find({ ...baseQuery, ...regexQuery }).select("-password");
+        } else {
+            doctors = await Doctor.find(baseQuery).select("-password");
         }
 
         res.status(200).json({success: true, message: 'Doctors found', data: doctors });
@@ -66,7 +72,7 @@ export const getDoctorProfile = async(req, res)=>{
         }
 
         const {password, ...rest} = doctor._doc ;
-        const appointments = await Booking.find({doctor: doctorId})
+        //const appointments = await Booking.find({doctor: doctorId})
 
         res.status(200).json({success:true, message:'Profile info is getting', data:{...rest}})
 

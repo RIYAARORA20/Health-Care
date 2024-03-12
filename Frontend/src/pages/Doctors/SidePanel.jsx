@@ -1,28 +1,6 @@
 import React from 'react'
 
 const SidePanel = () => {
-    const bookingHandler = async()=>{
-        try {
-            const res = await fetch(`${BASE_URL}/bookings/checkout-session/${doctorId}`,{
-                method: 'post',
-                headers:{
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            const data= await res.json()
-
-            if(!res.ok){
-                throw new Error(data.message + 'Please try agian')
-            }
-
-            if(data.session.url){
-                window.location.href= data.session.url
-            }
-
-        } catch (err) {
-            toast.error(err.message)
-        }
-    }
   return (
     <div className='shadow-panelShadow p-3 lg:p-5 rounded-md'>
       <div className='flex items-center justify-between'>

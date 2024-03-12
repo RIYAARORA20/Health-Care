@@ -1,6 +1,6 @@
 import express from 'express'
-import { createReview, getAllReviews } from '../Controllers/reviewController'
-import { authenticate,restrict } from '../auth/verifyToken'
+import { createReview, getAllReviews } from '../Controllers/reviewController.js'
+import { authenticate,restrict } from '../auth/verifyToken.js'
 
 const router = express.Router({mergeParams: true})
 

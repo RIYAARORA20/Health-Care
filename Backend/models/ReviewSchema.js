@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Doctor from "./DoctorSchema";
+import Doctor from "./DoctorSchema.js";
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -59,7 +59,7 @@ await Doctor.findByIdAndUpdate(doctorId,{
 };
 
 reviewSchema.post('save', function(){
-    this.constructor.calAverageRatings(this.doctor);
+    this.constructor.calcAverageRatings(this.doctor);
 });
 
 export default mongoose.model("Review", reviewSchema);
